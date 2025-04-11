@@ -62,7 +62,7 @@ namespace EchoSim22
                 {
                     //TODO доработать интервал между передачей строк Fuck Visual Studio
 
-                    _serialPort.WriteLine($"{fl.F300} ppg,      {fl.HPVT} ppg,       {fl.RateFloat} gpm,       " +
+                    _serialPort.WriteLine($"      {fl.F300} ppg,      {fl.HPVT} ppg,       {fl.RateFloat} gpm,       " +
                         $"0.0 bpm,         {fl.PSPress} psi,        {fl.DSPress} psi,      " +
                         $"3517 gal,      3517 gal,       0.0 bbl,       0.0 bbl,    " +
                         $"100.00 cmt%,    100.00 wtr%,       0.0 bpm,       " +
@@ -75,7 +75,8 @@ namespace EchoSim22
             }
             catch (Exception ex) 
             {
-            
+                MessageBox.Show("Ошибка записи в порт, проверьте подключение к COM PORT");
+                ConnectingPort(false);
             }
         }
         private void FindPort_Click(object sender, RoutedEventArgs e)
@@ -156,17 +157,23 @@ namespace EchoSim22
                 }
             }
         }
-
         private bool ConnectingPort(bool connectPort)
         {
             if (connectPort)
             {
                 _serialPort = new SerialPort(PortName, 9600, Parity.None, 8, StopBits.One);
+                _serialPort.WriteTimeout = 2000;
 
                 try
                 {
-                    _serialPort.Open();
-
+                    if (!_serialPort.IsOpen)
+                    {
+                        _serialPort.Open();
+                    }
+                    else
+                    {
+                        MessageBox.Show("Порт занят");
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -203,7 +210,7 @@ namespace EchoSim22
                 ConnectPortButton.Content = "Подключить";
             }
 
-            return OpenPort;
+            return true;
         }
     }
 }
